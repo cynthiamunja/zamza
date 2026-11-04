@@ -4,7 +4,7 @@ export type UserRow = {
   password_hash: string;
   first_name: string;
   last_name: string;
-  role: "customer" | "owner";
+  role: "customer" | "business_owner";
 };
 
 export type PublicUser = Omit<UserRow, "password_hash">;
