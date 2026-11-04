@@ -8,37 +8,24 @@ import {
   insertBusinessOwner,
   findUserByEmail,
 } from "../models/user.model.js";
+import { parseRegistration } from "../helpers/validation.helper.js";
 
 export async function register(req: Request, res: Response) {
-  const { email, password, firstName, lastName } = req.body ?? {};
+  const parsed = parseRegistration(req.body);
 
-  if (
-    typeof email !== "string" ||
-    typeof password !== "string" ||
-    typeof firstName !== "string" ||
-    typeof lastName !== "string" ||
-    firstName.trim() === "" ||
-    lastName.trim() === ""
-  ) {
-    res
-      .status(400)
-      .json({ error: "email, password, firstName and lastName are required" });
+  if ("error" in parsed) {
+    res.status(400).json({ error: parsed.error });
     return;
   }
 
-  if (password.length < 8) {
-    res.status(400).json({ error: "password must be at least 8 characters" });
-    return;
-  }
-
-  const passwordHash = await hashPassword(password);
+  const passwordHash = await hashPassword(parsed.data.password);
 
   try {
     const user = await insertCustomer({
-      email: email.toLowerCase(),
+      email: parsed.data.email,
       passwordHash,
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
+      firstName: parsed.data.firstName,
+      lastName: parsed.data.lastName,
     });
     res.status(201).json(toUserResponse(user));
   } catch (err) {
@@ -77,41 +64,28 @@ export async function login(req: Request, res: Response) {
   });
 }
 
-export async function registerBusinessOwner(req: Request, res: Response) {
-  const { email, password, firstName, lastName } = req.body ?? {};
+export async function registerBusinessOwner(req:Request, res:Response){
+  const parsed= parseRegistration(req.body);
 
-  if (
-    typeof email !== "string" ||
-    typeof password !== "string" ||
-    typeof firstName !== "string" ||
-    typeof lastName !== "string" ||
-    firstName.trim() === "" ||
-    lastName.trim() === ""
-  ) {
-    res
-      .status(400)
-      .json({ error: "email, password, firstName and lastName are required" });
+  if ("error" in parsed){
+    res.status(400).json({error:parsed.error});
     return;
   }
 
-  if (password.length < 8) {
-    res.status(400).json({ error: "password must be at least 8 characters" });
-    return;
-  }
-
-  const passwordHash = await hashPassword(password);
-
+  const passwordHash= await hashPassword(parsed.data.password)
   try {
-    const user = await insertBusinessOwner({
-      email: email.toLowerCase(),
+    const user=await insertBusinessOwner({
+      email:parsed.data.email,
       passwordHash,
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
+      firstName:parsed.data.firstName,
+      lastName: parsed.data.lastName,
     });
+
     res.status(201).json(toUserResponse(user));
+
   } catch (err) {
-    if (err instanceof Error && "code" in err && err.code === "23505") {
-      res.status(409).json({ error: "email already registered" });
+    if (err instanceof Error && "code" in err && err.code==="23505"){
+      res.status(409).json({error:"email already registered"});
       return;
     }
     throw err;
