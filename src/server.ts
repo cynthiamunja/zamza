@@ -4,12 +4,14 @@ import {pool} from "./db.js"
 import { authRouter } from "./routes/auth.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { config } from "./config.js";
+import { businessRouter } from "./routes/business.routes.js";
 
 
 const app=  express();
 
 app.use(express.json());
 app.use("/auth", authRouter);
+app.use("/businesses", businessRouter);
 app.use(errorHandler);
 
 

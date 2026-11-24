@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS businesses (
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
   timezone TEXT NOT NULL,
-  phone TEXT,
-  address TEXT,
-  description TEXT,
+  phone TEXT NOT NULL,
+  address TEXT NOT NULL,
+  description TEXT NOT NULL CHECK (char_length(description) BETWEEN 1 AND 500),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
